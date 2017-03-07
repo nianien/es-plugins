@@ -12,6 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+        <elasticsearch.java.version>${java.version}</elasticsearch.java.version>
         <elasticsearch.version>5.2.1</elasticsearch.version>
         <elasticsearch.plugin.name>${project.artifactId}</elasticsearch.plugin.name>
         <elasticsearch.plugin.jvm>true</elasticsearch.plugin.jvm>
