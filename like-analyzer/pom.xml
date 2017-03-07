@@ -15,7 +15,7 @@
     <artifactId>like-analyzer</artifactId>
 
     <properties>
-        <elasticsearch.plugin.classname>like.LikeAnalyzerPlugin</elasticsearch.plugin.classname>
+        <elasticsearch.plugin.classname>com.scorpio.es.plugin.like.LikeAnalyzerPlugin</elasticsearch.plugin.classname>
         <elasticsearch.plugin.metadata>${project.parent.basedir}/plugin-metadata</elasticsearch.plugin.metadata>
     </properties>
 

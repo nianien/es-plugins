@@ -26,7 +26,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringReader;
 
-import like.LikeAnalyzer;
+import com.scorpio.lucene.LikeAnalyzer;
 
 /**
  * @author scorpio

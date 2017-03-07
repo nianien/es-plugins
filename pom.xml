@@ -10,7 +10,9 @@
     <packaging>pom</packaging>
 
     <properties>
-        <elasticsearch.version>2.0.0</elasticsearch.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <elasticsearch.version>5.2.1</elasticsearch.version>
         <elasticsearch.plugin.name>${project.artifactId}</elasticsearch.plugin.name>
         <elasticsearch.plugin.jvm>true</elasticsearch.plugin.jvm>
         <elasticsearch.plugin.isolated>true</elasticsearch.plugin.isolated>
@@ -26,7 +28,7 @@
             <dependency>
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>elasticsearch</artifactId>
-                <version>2.0.0</version>
+                <version>5.2.1</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -37,6 +39,19 @@
         </dependencies>
     </dependencyManagement>
     <build>
+        <plugins>
+            <!-- compiler插件, 设定JDK版本 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>

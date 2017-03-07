@@ -1,4 +1,4 @@
-package like;
+package com.scorpio.lucene;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
