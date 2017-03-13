@@ -5,7 +5,9 @@ import com.scorpio.like.lucene.analysis.LikeAnalyzer;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CachingTokenFilter;
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -38,34 +40,42 @@ public class TestSubstringAnalyzer {
   private static RAMDirectory directory = new RAMDirectory();
 
 
+  private static Analyzer likeAnalyzer() {
+    return new LikeAnalyzer();
+  }
+
+
+  private static Analyzer stopAnalyzer() {
+    return new StopAnalyzer(new CharArraySet(0, true));
+  }
+
+
   @Test
   public void testTokenizer() throws Exception {
     String text = "lining,liming";
-    showTokenizer(new LikeAnalyzer(), text);
+    showTokenizer(likeAnalyzer(), text);
     System.out.println("=========");
-    showTokenizer(new SplitAnalyzer(), text);
+    showTokenizer(stopAnalyzer(), text);
   }
 
   @Test
   public void testSearch() throws Exception {
-    Analyzer analyzer = new LikeAnalyzer();
     String field = "name";
-    addDoc(analyzer, field, "lining");
-    addDoc(analyzer, field, "liming");
-    TopDocs topDocs = search(new LikeAnalyzer(),field, "min");
+    addDoc(likeAnalyzer(), field, "lining");
+    addDoc(likeAnalyzer(), field, "liming");
+    TopDocs topDocs = search(new LikeAnalyzer(), field, "min");
     assert topDocs.totalHits == 1 : "expected: 1,actual:" + topDocs.totalHits;
-    topDocs = search(analyzer,field, "ing");
+    topDocs = search(likeAnalyzer(), field, "ing");
     assert topDocs.totalHits == 2 : "expected: 2,actual:" + topDocs.totalHits;
   }
 
   @Test
   public void testSplitSearch() throws Exception {
-    Analyzer analyzer = new SplitAnalyzer();
     String field = "name";
-    addDoc(analyzer, field, "lining,liming");
-    TopDocs topDocs = search(new SplitAnalyzer(),field, "lining");
+    addDoc(stopAnalyzer(), field, "lining,liming");
+    TopDocs topDocs = search(stopAnalyzer(), field, "lining");
     assert topDocs.totalHits == 1 : "expected: 1,actual:" + topDocs.totalHits;
-    topDocs = search(new SplitAnalyzer(),field, "liming");
+    topDocs = search(stopAnalyzer(), field, "liming");
     assert topDocs.totalHits == 1 : "expected: 2,actual:" + topDocs.totalHits;
   }
 
