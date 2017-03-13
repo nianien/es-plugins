@@ -1,6 +1,8 @@
 package com.sm.warden.plugins;
 
 
+import com.scorpio.like.lucene.analysis.LikeAnalyzer;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CachingTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
@@ -14,19 +16,17 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
-
-import com.scorpio.like.lucene.analysis.LikeAnalyzer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author scorpio
@@ -35,45 +35,88 @@ import com.scorpio.like.lucene.analysis.LikeAnalyzer;
 public class TestSubstringAnalyzer {
 
 
+  private static RAMDirectory directory = new RAMDirectory();
+
+
   @Test
   public void testTokenizer() throws Exception {
-    String text = "中国Abc";
-    testTokenizer(new LikeAnalyzer(), text);
+    String text = "lining,liming";
+    showTokenizer(new LikeAnalyzer(), text);
+    System.out.println("=========");
+    showTokenizer(new SplitAnalyzer(), text);
   }
 
   @Test
   public void testSearch() throws Exception {
+    Analyzer analyzer = new LikeAnalyzer();
+    String field = "name";
+    addDoc(analyzer, field, "lining");
+    addDoc(analyzer, field, "liming");
+    TopDocs topDocs = search(new LikeAnalyzer(),field, "min");
+    assert topDocs.totalHits == 1 : "expected: 1,actual:" + topDocs.totalHits;
+    topDocs = search(analyzer,field, "ing");
+    assert topDocs.totalHits == 2 : "expected: 2,actual:" + topDocs.totalHits;
+  }
 
-    TopDocs topDocs = testSearch("ma", "lining", "liming");
-    System.out.println(topDocs.totalHits);
-    assert topDocs.totalHits == 1;
+  @Test
+  public void testSplitSearch() throws Exception {
+    Analyzer analyzer = new SplitAnalyzer();
+    String field = "name";
+    addDoc(analyzer, field, "lining,liming");
+    TopDocs topDocs = search(new SplitAnalyzer(),field, "lining");
+    assert topDocs.totalHits == 1 : "expected: 1,actual:" + topDocs.totalHits;
+    topDocs = search(new SplitAnalyzer(),field, "liming");
+    assert topDocs.totalHits == 1 : "expected: 2,actual:" + topDocs.totalHits;
+  }
+
+  /**
+   * 添加文档
+   *
+   * @param analyzer
+   * @param field
+   * @param values
+   * @throws Exception
+   */
+  private void addDoc(Analyzer analyzer, String field, String... values) throws Exception {
+    IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+    indexWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
+    IndexWriter writer = new IndexWriter(directory, indexWriterConfig);
+    Document doc = new Document();
+    for (String value : values) {
+      doc.add(new TextField(field, value, Store.YES));
+    }
+    writer.addDocument(doc);
+    writer.close();
   }
 
 
-  private static TopDocs testSearch(String target, String... sources) throws Exception {
-    RAMDirectory directory = new RAMDirectory();
-    Analyzer analyzer = new LikeAnalyzer();
-    IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
-
-    indexWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
-    IndexWriter writer = new IndexWriter(directory,
-            indexWriterConfig);
-    for (String src : sources) {
-      Document doc = new Document();
-      doc.add(new TextField("name", src, Store.YES));
-      writer.addDocument(doc);
-    }
-    writer.close();
-
+  /**
+   * 查询文档
+   *
+   * @param analyzer
+   * @param field
+   * @param queryString
+   * @return
+   * @throws Exception
+   */
+  private static TopDocs search(Analyzer analyzer, String field, String queryString) throws Exception {
     IndexSearcher search = new IndexSearcher(DirectoryReader.open(directory));
-    Query query = doParse(analyzer, "name", target);
-    TopDocs topDocs = search.search(query, 10);
-
+    Query query = buildQuery(analyzer, field, queryString);
+    TopDocs topDocs = search.search(query, Integer.MAX_VALUE);
     return topDocs;
   }
 
 
-  private static Query doParse(Analyzer analyzer, String fieldName, String fieldValue) throws Exception {
+  /**
+   * 生成Query
+   *
+   * @param analyzer
+   * @param fieldName
+   * @param fieldValue
+   * @return
+   * @throws Exception
+   */
+  private static Query buildQuery(Analyzer analyzer, String fieldName, String fieldValue) throws Exception {
 
     TokenStream source = analyzer.tokenStream(fieldName, new StringReader(
             fieldValue));
@@ -83,21 +126,11 @@ public class TestSubstringAnalyzer {
 
     CharTermAttribute termAtt = buffer
             .getAttribute(CharTermAttribute.class);
-    PositionIncrementAttribute posIncAtt = buffer
-            .hasAttribute(PositionIncrementAttribute.class) ? buffer
-            .getAttribute(PositionIncrementAttribute.class) : null;
-    PhraseQuery pq = new PhraseQuery();
-    int position = -1;
+    List<String> terms = new ArrayList<>();
     while (buffer.incrementToken()) {
-      position += posIncAtt != null ? posIncAtt.getPositionIncrement()
-              : 1;
-      pq.add(new Term(fieldName, termAtt.toString()), position);
+      terms.add(termAtt.toString());
     }
-    Term[] terms = pq.getTerms();
-    if (terms.length == 1) {
-      return new TermQuery(terms[0]);
-    }
-    return pq;
+    return new PhraseQuery(fieldName, terms.toArray(new String[0]));
   }
 
   /**
@@ -107,7 +140,7 @@ public class TestSubstringAnalyzer {
    * @param text
    * @throws java.io.IOException
    */
-  private static void testTokenizer(Analyzer analyzer, String text)
+  private static void showTokenizer(Analyzer analyzer, String text)
           throws IOException {
     TokenStream ts = analyzer.tokenStream(null, new StringReader(text));
     CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
@@ -127,4 +160,5 @@ public class TestSubstringAnalyzer {
               + "]");
     }
   }
+
 }
