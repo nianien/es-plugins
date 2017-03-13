@@ -1,7 +1,7 @@
-package com.scorpio.es.plugin.like;
+package com.scorpio.like.elasticsearch.index.analysis;
 
 
-import com.scorpio.lucene.LikeAnalyzer;
+import com.scorpio.like.lucene.analysis.LikeAnalyzer;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.elasticsearch.common.inject.Inject;

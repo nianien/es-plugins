@@ -1,6 +1,6 @@
-package com.scorpio.es.plugin.like;
+package com.scorpio.like.elasticsearch.index.analysis;
 
-import com.scorpio.lucene.SubstringTokenizer;
+import com.scorpio.like.lucene.analysis.SubstringTokenizer;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.elasticsearch.common.inject.assistedinject.Assisted;
