@@ -70,7 +70,7 @@ public class TestSubstringAnalyzer {
   }
 
   @Test
-  public void testSplitSearch() throws Exception {
+  public void testStopSearch() throws Exception {
     String field = "name";
     addDoc(stopAnalyzer(), field, "lining,liming");
     TopDocs topDocs = search(stopAnalyzer(), field, "lining");
