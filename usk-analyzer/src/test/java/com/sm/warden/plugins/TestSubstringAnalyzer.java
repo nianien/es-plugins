@@ -1,13 +1,12 @@
 package com.sm.warden.plugins;
 
 
-import com.scorpio.like.lucene.analysis.LikeAnalyzer;
+import com.scorpio.usk.lucene.analysis.SplitterAnalyzer;
+import com.scorpio.usk.lucene.analysis.SubstringAnalyzer;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CachingTokenFilter;
-import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -41,21 +40,21 @@ public class TestSubstringAnalyzer {
 
 
   private static Analyzer likeAnalyzer() {
-    return new LikeAnalyzer();
+    return new SubstringAnalyzer();
   }
 
 
-  private static Analyzer stopAnalyzer() {
-    return new StopAnalyzer(new CharArraySet(0, true));
+  private static Analyzer splitAnalyzer() {
+    return new SplitterAnalyzer(",");
   }
 
 
   @Test
   public void testTokenizer() throws Exception {
-    String text = "lining,liming";
+    String text = "lining,liming_88-99";
     showTokenizer(likeAnalyzer(), text);
     System.out.println("=========");
-    showTokenizer(stopAnalyzer(), text);
+    showTokenizer(splitAnalyzer(), text);
   }
 
   @Test
@@ -63,7 +62,7 @@ public class TestSubstringAnalyzer {
     String field = "name";
     addDoc(likeAnalyzer(), field, "lining");
     addDoc(likeAnalyzer(), field, "liming");
-    TopDocs topDocs = search(new LikeAnalyzer(), field, "min");
+    TopDocs topDocs = search(new SubstringAnalyzer(), field, "min");
     assert topDocs.totalHits == 1 : "expected: 1,actual:" + topDocs.totalHits;
     topDocs = search(likeAnalyzer(), field, "ing");
     assert topDocs.totalHits == 2 : "expected: 2,actual:" + topDocs.totalHits;
@@ -72,10 +71,10 @@ public class TestSubstringAnalyzer {
   @Test
   public void testStopSearch() throws Exception {
     String field = "name";
-    addDoc(stopAnalyzer(), field, "lining,liming");
-    TopDocs topDocs = search(stopAnalyzer(), field, "lining");
+    addDoc(splitAnalyzer(), field, "lining,liming");
+    TopDocs topDocs = search(splitAnalyzer(), field, "lining");
     assert topDocs.totalHits == 1 : "expected: 1,actual:" + topDocs.totalHits;
-    topDocs = search(stopAnalyzer(), field, "liming");
+    topDocs = search(splitAnalyzer(), field, "liming");
     assert topDocs.totalHits == 1 : "expected: 2,actual:" + topDocs.totalHits;
   }
 

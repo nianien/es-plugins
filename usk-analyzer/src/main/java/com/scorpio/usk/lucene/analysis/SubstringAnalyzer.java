@@ -1,15 +1,15 @@
-package com.scorpio.like.lucene.analysis;
+package com.scorpio.usk.lucene.analysis;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 
 /**
- * 单个字符的分词器, 适用于短字符串的任意部分匹配<br>
+ * 匹配字符任意子串<br>
  *
  * @author skyfalling
  */
-public final class LikeAnalyzer extends Analyzer {
+public final class SubstringAnalyzer extends Analyzer {
 
 
   @Override

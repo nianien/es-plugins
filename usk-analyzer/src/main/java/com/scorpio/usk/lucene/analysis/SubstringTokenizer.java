@@ -1,4 +1,4 @@
-package com.scorpio.like.lucene.analysis;
+package com.scorpio.usk.lucene.analysis;
 
 import org.apache.lucene.analysis.CharacterUtils;
 import org.apache.lucene.analysis.CharacterUtils.CharacterBuffer;
@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class SubstringTokenizer extends Tokenizer {
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-  private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
+  private final PositionIncrementAttribute posIncAtt = addAttribute(PositionIncrementAttribute.class);
   private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
   private final CharacterBuffer ioBuffer = CharacterUtils.newCharacterBuffer(4096);
   private int finalOffset = -1;
@@ -42,7 +42,7 @@ public class SubstringTokenizer extends Tokenizer {
       bufferOffset = 0;
     }
     termAtt.append(ioBuffer.getBuffer()[bufferOffset]);
-    posIncrAtt.setPositionIncrement(1);
+    posIncAtt.setPositionIncrement(1);
     offsetAtt.setOffset(correctOffset(finalOffset), correctOffset(finalOffset + 1));
     bufferOffset++;
     finalOffset++;

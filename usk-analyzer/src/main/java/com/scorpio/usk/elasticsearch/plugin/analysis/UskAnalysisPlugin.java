@@ -1,7 +1,9 @@
-package com.scorpio.like.elasticsearch.pluin.analysis;
+package com.scorpio.usk.elasticsearch.plugin.analysis;
 
-import com.scorpio.like.elasticsearch.index.analysis.LikeAnalyzerProvider;
-import com.scorpio.like.elasticsearch.index.analysis.LikeTokenizerFactory;
+import com.scorpio.usk.elasticsearch.index.analysis.SplitAnalyzerProvider;
+import com.scorpio.usk.elasticsearch.index.analysis.SplitTokenizerFactory;
+import com.scorpio.usk.elasticsearch.index.analysis.SubStringTokenizerFactory;
+import com.scorpio.usk.elasticsearch.index.analysis.SubstringAnalyzerProvider;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.elasticsearch.index.analysis.AnalyzerProvider;
@@ -17,14 +19,16 @@ import java.util.Map;
 /**
  * 分词器插件,{@link AnalysisPlugin}接口实现
  */
-public class LikeAnalyzerPlugin extends Plugin implements AnalysisPlugin {
+public class UskAnalysisPlugin extends Plugin implements AnalysisPlugin {
 
-  public static final String PLUGIN_NAME = "like";
+  public static final String PLUGIN_SPLIT = "usk_split";
+  public static final String PLUGIN_LIKE = "usk_like";
 
   @Override
   public Map<String, AnalysisProvider<TokenizerFactory>> getTokenizers() {
     Map<String, AnalysisProvider<TokenizerFactory>> extra = new HashMap<>();
-    extra.put(PLUGIN_NAME, LikeTokenizerFactory::new);
+    extra.put(PLUGIN_LIKE, SubStringTokenizerFactory::new);
+    extra.put(PLUGIN_SPLIT, SplitTokenizerFactory::new);
 
     return extra;
   }
@@ -32,9 +36,9 @@ public class LikeAnalyzerPlugin extends Plugin implements AnalysisPlugin {
   @Override
   public Map<String, AnalysisProvider<AnalyzerProvider<? extends Analyzer>>> getAnalyzers() {
     Map<String, AnalysisProvider<AnalyzerProvider<? extends Analyzer>>> extra = new HashMap<>();
-    extra.put(PLUGIN_NAME, LikeAnalyzerProvider::new);
+    extra.put(PLUGIN_LIKE, SubstringAnalyzerProvider::new);
+    extra.put(PLUGIN_SPLIT, SplitAnalyzerProvider::new);
     return extra;
   }
-
 
 }

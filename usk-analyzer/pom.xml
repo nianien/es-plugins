@@ -7,15 +7,16 @@
 
     <parent>
         <artifactId>plugins</artifactId>
-        <groupId>com.scorpio.es</groupId>
+        <groupId>com.scorpio.usk</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <description>a analyzer used as sql like operation</description>
-    <artifactId>like-analyzer</artifactId>
+    <artifactId>usk-analyzer</artifactId>
 
     <properties>
-        <elasticsearch.plugin.classname>com.scorpio.like.elasticsearch.pluin.analysis.LikeAnalyzerPlugin</elasticsearch.plugin.classname>
+        <elasticsearch.plugin.classname>com.scorpio.usk.elasticsearch.plugin.analysis.UskAnalysisPlugin
+        </elasticsearch.plugin.classname>
         <elasticsearch.plugin.metadata>${project.parent.basedir}/plugin-metadata</elasticsearch.plugin.metadata>
     </properties>
 
